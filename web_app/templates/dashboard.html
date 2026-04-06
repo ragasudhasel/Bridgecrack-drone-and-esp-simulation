@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Inspection Dashboard</h1>
+
+<div class="stats-grid fade-in">
+    <div class="stat-card">
+        <div class="stat-value counter" data-target="{{ stats.get('Critical', 0) }}">0</div>
+        <div>Critical Defects</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value counter" data-target="{{ stats.get('High', 0) }}">0</div>
+        <div>High Risk</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value counter" data-target="{{ stats.get('Medium', 0) }}">0</div>
+        <div>Medium Risk</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value counter" data-target="{{ recent|length }}">0</div>
+        <div>Total Inspections</div>
+    </div>
+</div>
+
+<div class="card fade-in">
+    <h3><i class="fas fa-list-check"></i> Recent Defects</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Time</th>
+                <th>Defect Type</th>
+                <th>Severity</th>
+                <th>Impact</th>
+                <th>Confidence</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in recent %}
+            <tr>
+                <td>#{{ item['id'] }}</td>
+                <td>{{ item['timestamp'] }}</td>
+                <td>{{ item['defect_type'] }}</td>
+                <td class="severity-{{ item['severity'] }}">{{ item['severity'] }}</td>
+                <td>{{ item['lifespan_impact'] }}</td>
+                <td>{{ "%.2f"|format(item['confidence']) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card fade-in">
+    <h3><i class="fas fa-chart-pie"></i> Defect Visualization</h3>
+    <canvas id="severityChart"></canvas>
+</div>
+
+<script>
+    const ctx = document.getElementById('severityChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Critical', 'High', 'Medium', 'Low'],
+            datasets: [{
+                label: '# of Defects',
+                data: [
+                    {{ stats.get('Critical', 0) }},
+            {{ stats.get('High', 0) }},
+                    {{ stats.get('Medium', 0) }},
+        {{ stats.get('Low', 0) }}
+                ],
+        backgroundColor: [
+        '#ff4757', // neon red
+        '#ffa502', // neon orange
+        '#38bdf8', // neon blue
+        '#2ed573'  // neon green
+    ],
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 2,
+        borderRadius: 8
+            }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: { labels: { color: '#f8fafc', font: { family: 'Outfit', size: 14 } } }
+        },
+        scales: {
+            y: { 
+                ticks: { color: '#94a3b8', font: { family: 'Outfit' } },
+                grid: { color: 'rgba(255,255,255,0.05)' } 
+            },
+            x: { 
+                ticks: { color: '#94a3b8', font: { family: 'Outfit' } },
+                grid: { display: false } 
+            }
+        }
+    }
+    });
+
+    // Animated Counter for Stats
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200; // The lower the slower
+
+    counters.forEach(counter => {
+        const updateCount = () => {
+            const target = +counter.getAttribute('data-target');
+            const count = +counter.innerText;
+
+            const inc = target / speed;
+
+            if (count < target) {
+                counter.innerText = Math.ceil(count + inc);
+                setTimeout(updateCount, 15);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        updateCount();
+    });
+</script>
+{% endblock %}

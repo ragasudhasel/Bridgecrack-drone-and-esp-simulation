@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 5
+names: ['corrosion', 'crack', 'freelime', 'leakage', 'spalling']
+
+roboflow:
+  workspace: bridge-damage-detection-using-yolov5
+  project: bridge-damage-detection
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/bridge-damage-detection-using-yolov5/bridge-damage-detection/dataset/2
