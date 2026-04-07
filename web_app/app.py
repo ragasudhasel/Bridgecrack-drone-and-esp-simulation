@@ -19,14 +19,8 @@ REPORT_FOLDER = os.path.join(BASE_DIR, 'static', 'reports')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(REPORT_FOLDER, exist_ok=True)
 
-# Load Model
-import os
-
-# Compute the absolute path relative to this script
-# Assuming 'bridge_inspection/run1/weights/best.pt' is located at the root of the project
-PROJECT_ROOT = os.path.dirname(BASE_DIR)
-MODEL_PATH = os.path.join(PROJECT_ROOT, 'bridge_inspection', 'run1', 'weights', 'best.pt')
-
+# Load Model - use relative path so it works in Docker/HF Spaces
+MODEL_PATH = os.path.join(BASE_DIR, '..', 'bridge_inspection', 'run1', 'weights', 'best.pt')
 try:
     model = YOLO(MODEL_PATH)
 except Exception as e:
@@ -512,6 +506,6 @@ def inspection():
     return render_template('inspection.html')
 
 if __name__ == '__main__':
-    # Hugging Face Spaces open port 7860
-    port = int(os.environ.get("PORT", 7860))
+    # Port 7860 for Hugging Face Spaces, 5000 for local dev
+    port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
